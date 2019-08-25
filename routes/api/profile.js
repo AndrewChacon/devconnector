@@ -4,6 +4,7 @@ const request = require("request");
 const config = require("config");
 const Profile = require("../../models/Profile");
 const User = require("../../models/User");
+const Post = require("../../models/Post");
 const auth = require("../../middleware/auth");
 const { check, validationResult } = require("express-validator/check");
 
@@ -147,6 +148,8 @@ router.get("/user/:user_id", async (req, res) => {
 // @access  Private
 router.delete("/", auth, async (req, res) => {
   try {
+    // Delete posts, profile, and user
+    await Post.deleteMany({ user: req.user.id });
     await Profile.findOneAndRemove({ user: req.user.id });
     await User.findOneAndRemove({ _id: req.user.id });
     res.json({ msg: "User deleted" });
@@ -156,11 +159,11 @@ router.delete("/", auth, async (req, res) => {
   }
 });
 
-// @route   Put api/profile/experince
-// desc     Add profile experince
+// @route   Put api/profile/experience
+// desc     Add profile experience
 // @access  Private
 router.put(
-  "/experince",
+  "/experience",
   [
     auth,
     [
@@ -203,8 +206,8 @@ router.put(
 
     try {
       const profile = await Profile.findOne({ user: req.user.id });
-      // profile.experince.unshift(newExp);
-      profile.experince.unshift(newExp);
+      // profile.experience.unshift(newExp);
+      profile.experience.unshift(newExp);
       await profile.save();
       res.json(profile);
     } catch (err) {
@@ -214,17 +217,17 @@ router.put(
   }
 );
 
-// @route   Delete api/profile/experince/:exp_id
-// desc     Delete experince from profile
+// @route   Delete api/profile/experience/:exp_id
+// desc     Delete experience from profile
 // @access  Private
-router.delete("/experince/:exp_id", auth, async (req, res) => {
+router.delete("/experience/:exp_id", auth, async (req, res) => {
   try {
     const profile = await Profile.findOne({ user: req.user.id });
     // get the remove index
-    const removeIndex = profile.experince
+    const removeIndex = profile.experience
       .map(item => item.id)
       .indexOf(req.params.exp_id);
-    profile.experince.splice(removeIndex, 1);
+    profile.experience.splice(removeIndex, 1);
     await profile.save();
     res.json(profile);
   } catch (err) {
@@ -283,7 +286,7 @@ router.put(
 
     try {
       const profile = await Profile.findOne({ user: req.user.id });
-      // profile.experince.unshift(newExp);
+      // profile.experience.unshift(newExp);
       profile.education.unshift(newEdu);
       await profile.save();
       res.json(profile);
